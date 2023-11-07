@@ -1,0 +1,87 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define BOARD_SIZE 52
+#define WINNING_POSITIONS 8
+#define PLAYERS 4
+
+// Player colors for display
+const char* player_colors[] = {"Red", "Blue", "Green", "Yellow"};
+
+// Function to roll a dice
+int rollDice() {
+    return (rand() % 6) + 1;
+}
+
+// Function to move a player
+int movePlayer(int currentPosition, int steps) {
+    int newPosition = currentPosition + steps;
+    if (newPosition > BOARD_SIZE)
+        newPosition -= BOARD_SIZE;
+    return newPosition;
+}
+
+int main() {
+    srand(time(NULL));
+
+    int board[BOARD_SIZE];
+    for (int i = 0; i < BOARD_SIZE; i++) {
+        board[i] = -1;
+    }
+
+    int playerPositions[PLAYERS];
+    for (int i = 0; i < PLAYERS; i++) {
+        playerPositions[i] = -1;
+    }
+
+    // Define the winning positions
+    int winningPositions[WINNING_POSITIONS] = {1, 9, 16, 47, 28, 35, 45, 52};
+
+    int currentPlayer = 0;
+    int winner = -1;
+
+    while (winner == -1) {
+        int dice = rollDice();
+        printf("%s's turn. Press Enter to roll the dice.\n", player_colors[currentPlayer]);
+        getchar();
+        printf("%s rolled a %d\n", player_colors[currentPlayer], dice);
+
+        playerPositions[currentPlayer] = movePlayer(playerPositions[currentPlayer], dice);
+
+        // Check for a win
+        for (int i = 0; i < WINNING_POSITIONS; i++) {
+            if (playerPositions[currentPlayer] == winningPositions[i]) {
+                winner = currentPlayer;
+                break;
+            }
+        }
+
+        // Print the game board
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            int occupiedBy = -1;
+            for (int j = 0; j < PLAYERS; j++) {
+                if (playerPositions[j] == i) {
+                    occupiedBy = j;
+                    break;
+                }
+            }
+
+            if (occupiedBy == -1) {
+                printf(". ");
+            } else {
+                printf("%d ", occupiedBy + 1);
+            }
+        }
+
+        printf("\n");
+
+        if (winner == -1) {
+            currentPlayer = (currentPlayer + 1) % PLAYERS;
+        }
+    }
+
+    printf("%s wins!\n", player_colors[winner]);
+
+    return 0;
+}
